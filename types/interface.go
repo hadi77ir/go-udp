@@ -8,7 +8,7 @@ import (
 
 type PacketConn interface {
 	io.Closer
-	Read(p []byte, oob []byte) (int, int, ECN, error)
+	Read(p []byte, oob []byte) (dataN int, oobN int, ecn ECN, err error)
 	Write(p []byte, oob []byte, gsoSize int, ecn ECN) (dataN int, oobN int, err error)
 	LocalAddr() net.Addr
 	RemoteAddr() net.Addr
