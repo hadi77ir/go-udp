@@ -40,12 +40,6 @@ func (lc *ListenConfig) Listen(network string, laddr *net.UDPAddr) (types.SuperC
 	if err != nil {
 		return nil, err
 	}
-	if lc.ReadBufferSize > 0 {
-		_ = conn.SetReadBuffer(lc.ReadBufferSize)
-	}
-	if lc.WriteBufferSize > 0 {
-		_ = conn.SetWriteBuffer(lc.WriteBufferSize)
-	}
 
 	return wrapConn(rawConn, true, lc.AcceptFilter, lc.Backlog)
 }
@@ -53,4 +47,8 @@ func (lc *ListenConfig) Listen(network string, laddr *net.UDPAddr) (types.SuperC
 // Listen creates a new listener using default ListenConfig.
 func Listen(network string, laddr *net.UDPAddr) (types.SuperConn, error) {
 	return (&ListenConfig{}).Listen(network, laddr)
+}
+
+func WrapListenConn(rawConn types.RawConn, lc *ListenConfig) (types.SuperConn, error) {
+	return wrapConn(rawConn, true, lc.AcceptFilter, lc.Backlog)
 }

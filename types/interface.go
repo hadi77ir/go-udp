@@ -23,3 +23,5 @@ type SuperConn interface {
 	Addr() net.Addr
 	SetDeadline(t time.Time) error
 }
+
+type GetSubConnFunc func(rawConn SuperConn, addr net.Addr) (PacketConn, error)

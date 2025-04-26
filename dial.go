@@ -108,12 +108,34 @@ func superDialNew(network string, laddr *net.UDPAddr, raddr *net.UDPAddr, dc *Co
 	if err != nil {
 		return nil, err
 	}
-	if dc.ReadBufferSize > 0 {
-		_ = conn.SetReadBuffer(dc.ReadBufferSize)
-	}
-	if dc.WriteBufferSize > 0 {
-		_ = conn.SetWriteBuffer(dc.WriteBufferSize)
+	return wrapDialed(rawConn, dc)
+}
+
+type bufferedConn interface {
+	SetReadBuffer(bufferSize int) error
+	SetWriteBuffer(bufferSize int) error
+}
+
+func wrapDialed(rawConn types.RawConn, dc *ConnConfig) (*supConn, error) {
+	if bConn, ok := rawConn.(bufferedConn); ok {
+		if dc.ReadBufferSize > 0 {
+			_ = bConn.SetReadBuffer(dc.ReadBufferSize)
+		}
+		if dc.WriteBufferSize > 0 {
+			_ = bConn.SetWriteBuffer(dc.WriteBufferSize)
+		}
 	}
 
-	return wrapConn(rawConn, true, nil, 1)
+	return wrapConn(rawConn, false, nil, 1)
+}
+
+func WrapDialedConn(rawConn types.RawConn, dc *ConnConfig) (types.SuperConn, types.GetSubConnFunc, error) {
+	super, err := wrapDialed(rawConn, dc)
+	if err != nil {
+		return nil, nil, err
+	}
+	return super, func(rawConn types.SuperConn, addr net.Addr) (c types.PacketConn, err error) {
+		c, _, err = super.getSubConn(addr, nil, false)
+		return
+	}, nil
 }

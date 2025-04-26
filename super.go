@@ -48,6 +48,7 @@ type supConn struct {
 }
 
 func wrapConn(rawConn types.RawConn, isListener bool, acceptFilter func([]byte) bool, backlog int) (*supConn, error) {
+
 	listener := &supConn{
 		pConn:        rawConn,
 		pConnCaps:    rawConn.Capabilities(),
