@@ -134,7 +134,7 @@ func WrapDialedConn(rawConn types.RawConn, dc *ConnConfig) (types.SuperConn, typ
 	if err != nil {
 		return nil, nil, err
 	}
-	return super, func(rawConn types.SuperConn, addr net.Addr) (c types.PacketConn, err error) {
+	return super, func(raddr net.Addr) (c types.PacketConn, err error) {
 		c, _, err = super.getSubConn(addr, nil, false)
 		return
 	}, nil
