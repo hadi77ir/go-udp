@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/hadi77ir/go-logging v0.0.0-20250322101635-3a4b7eca271d
-	github.com/hadi77ir/go-ringqueue v0.0.0-20250408213447-310e85c43e19
+	github.com/hadi77ir/go-ringqueue v0.0.0-20250428224705-41a7607328bb
 	github.com/pion/transport/v3 v3.0.7
 	github.com/stretchr/testify v1.10.0
 	github.com/valyala/bytebufferpool v1.0.0

@@ -10,6 +10,10 @@ github.com/hadi77ir/go-ringqueue v0.0.0-20250324144320-c35aee864a5a h1:dENEw2cvx
 github.com/hadi77ir/go-ringqueue v0.0.0-20250324144320-c35aee864a5a/go.mod h1:Zi2ZhVTQdj0HsSctRYeDq238aJRtFq11a0ai9xtP1So=
 github.com/hadi77ir/go-ringqueue v0.0.0-20250408213447-310e85c43e19 h1:qABIbFUmRQpJ3cnXEAQcTfDNVI4gB2+txUBWtTXkzJ4=
 github.com/hadi77ir/go-ringqueue v0.0.0-20250408213447-310e85c43e19/go.mod h1:Er+fb7JqqwhtMGe7COdxhVGTdbhZ0ULq3HMI7qKmneg=
+github.com/hadi77ir/go-ringqueue v0.0.0-20250427235043-1e8a03f96e96 h1:ekgKr/hh6HYqJy7ADU9urjNWN7pQK3V8f/pADclCveY=
+github.com/hadi77ir/go-ringqueue v0.0.0-20250427235043-1e8a03f96e96/go.mod h1:Er+fb7JqqwhtMGe7COdxhVGTdbhZ0ULq3HMI7qKmneg=
+github.com/hadi77ir/go-ringqueue v0.0.0-20250428224705-41a7607328bb h1:n318uvuHy+5jrSgYFPGG+fg4Ccmtz3YsEQTDIG6ixsk=
+github.com/hadi77ir/go-ringqueue v0.0.0-20250428224705-41a7607328bb/go.mod h1:Er+fb7JqqwhtMGe7COdxhVGTdbhZ0ULq3HMI7qKmneg=
 github.com/pion/transport/v3 v3.0.7 h1:iRbMH05BzSNwhILHoBoAPxoB9xQgOaJk+591KC9P1o0=
 github.com/pion/transport/v3 v3.0.7/go.mod h1:YleKiTZ4vqNxVwh77Z0zytYi7rXHl7j6uPLGhhz9rwo=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

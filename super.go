@@ -237,10 +237,8 @@ func (l *supConn) newSubConn(rAddr net.Addr) *Conn {
 	}
 }
 
-func (l *supConn) onQueueClose(data []receivedPacket, start int, end int, full bool) {
-	for _, buf := range data {
-		l.putBuffers(buf.data, buf.oob)
-	}
+func (l *supConn) onQueueClose(data receivedPacket) {
+	l.putBuffers(data.data, data.oob)
 	return
 }
 func (l *supConn) putBuffers(data *bytebufferpool.ByteBuffer, oob *bytebufferpool.ByteBuffer) {
