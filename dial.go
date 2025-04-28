@@ -130,6 +130,13 @@ func wrapDialed(rawConn types.RawConn, dc *ConnConfig) (*supConn, error) {
 }
 
 func WrapDialedConn(rawConn types.RawConn, dc *ConnConfig) (types.SuperConn, types.GetSubConnFunc, error) {
+	if dc == nil {
+		dc = &ConnConfig{
+			ReadBufferSize:  128 * receiveMTU,
+			WriteBufferSize: 128 * sendMTU,
+			WriteInterval:   50 * time.Microsecond,
+		}
+	}
 	super, err := wrapDialed(rawConn, dc)
 	if err != nil {
 		return nil, nil, err
