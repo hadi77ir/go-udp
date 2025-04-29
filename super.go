@@ -47,6 +47,8 @@ type supConn struct {
 	isListener bool
 }
 
+var _ types.SuperConn = &supConn{}
+
 func wrapConn(rawConn types.RawConn, isListener bool, acceptFilter func([]byte) bool, backlog int) (*supConn, error) {
 
 	listener := &supConn{
@@ -118,6 +120,10 @@ func (l *supConn) Close() error {
 	})
 
 	return err
+}
+
+func (l *supConn) Capabilities() types.ConnCapabilities {
+	return l.pConnCaps
 }
 
 // Addr returns the listener's network address.

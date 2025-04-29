@@ -27,6 +27,7 @@ type Conn struct {
 	writeDeadline *deadline.Deadline
 
 	ecnDefault types.ECN
+	cap        types.ConnCapabilities
 }
 
 // Read reads from c into p.
@@ -127,3 +128,9 @@ func (c *Conn) SetWriteDeadline(t time.Time) error {
 	c.writeDeadline.Set(t)
 	return nil
 }
+
+func (c *Conn) Capabilities() types.ConnCapabilities {
+	return c.super.pConnCaps
+}
+
+var _ types.PacketConn = &Conn{}

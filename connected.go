@@ -58,4 +58,8 @@ func (c *SingleAddrConn) SetWriteDeadline(t time.Time) error {
 	return errors.ErrUnsupported
 }
 
+func (c *SingleAddrConn) Capabilities() types.ConnCapabilities {
+	return c.base.Capabilities()
+}
+
 var _ types.PacketConn = &SingleAddrConn{}

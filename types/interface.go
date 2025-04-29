@@ -15,6 +15,7 @@ type PacketConn interface {
 	SetDeadline(t time.Time) error
 	SetReadDeadline(t time.Time) error
 	SetWriteDeadline(t time.Time) error
+	Capabilities() ConnCapabilities
 }
 
 type SuperConn interface {
@@ -22,6 +23,7 @@ type SuperConn interface {
 	Accept() (PacketConn, error)
 	Addr() net.Addr
 	SetDeadline(t time.Time) error
+	Capabilities() ConnCapabilities
 }
 
 type GetSubConnFunc func(raddr net.Addr) (PacketConn, error)
