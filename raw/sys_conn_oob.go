@@ -266,7 +266,7 @@ func (c *oobConn) WritePacket(b []byte, packetInfoOOB []byte, gsoSize uint16, ec
 			// failsafe
 			return 0, 0, errors.New("GSO disabled")
 		}
-		oob = appendUDPSegmentSizeMsg(oob, gsoSize)
+		oob = AppendUDPSegmentSizeMsg(oob, gsoSize)
 	}
 	if ecn != types.ECNUnsupported {
 		if !c.Capabilities().ECN() {

@@ -47,7 +47,7 @@ var _ connectedConn = &net.UDPConn{}
 // WrapConn wraps given connection into a RawConn, allowing for sending OOB data (ECN bits)
 // To disable batch writing that involves buffering and interval-based flushing, set writeInterval to zero.
 func WrapConn(pc net.PacketConn, writeInterval time.Duration) (types.RawConn, error) {
-	if err := setReceiveBuffer(pc); err != nil {
+	if err := SetReceiveBuffer(pc); err != nil {
 		if !strings.Contains(err.Error(), "use of closed network connection") {
 			setBufferWarningOnce.Do(func() {
 				if disable, _ := strconv.ParseBool(os.Getenv("QUIC_GO_DISABLE_RECEIVE_BUFFER_WARNING")); disable {
@@ -57,7 +57,7 @@ func WrapConn(pc net.PacketConn, writeInterval time.Duration) (types.RawConn, er
 			})
 		}
 	}
-	if err := setSendBuffer(pc); err != nil {
+	if err := SetSendBuffer(pc); err != nil {
 		if !strings.Contains(err.Error(), "use of closed network connection") {
 			setBufferWarningOnce.Do(func() {
 				if disable, _ := strconv.ParseBool(os.Getenv("QUIC_GO_DISABLE_RECEIVE_BUFFER_WARNING")); disable {

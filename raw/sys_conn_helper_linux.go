@@ -75,7 +75,7 @@ func IsGSOEnabled(conn syscall.RawConn) bool {
 	return serr == nil
 }
 
-func appendUDPSegmentSizeMsg(b []byte, size uint16) []byte {
+func AppendUDPSegmentSizeMsg(b []byte, size uint16) []byte {
 	startLen := len(b)
 	const dataLen = 2 // payload is a uint16
 	b = append(b, make([]byte, unix.CmsgSpace(dataLen))...)

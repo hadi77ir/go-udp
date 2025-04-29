@@ -255,7 +255,7 @@ func TestReadsMultipleMessagesInOneBatch(t *testing.T) {
 
 // Only if appendUDPSegmentSizeMsg actually appends a message (and isn't only a stub implementation),
 // GSO is actually supported on this platform.
-var platformSupportsGSO = len(appendUDPSegmentSizeMsg([]byte{}, 1337)) > 0
+var platformSupportsGSO = len(AppendUDPSegmentSizeMsg([]byte{}, 1337)) > 0
 
 func TestSysConnSendGSO(t *testing.T) {
 	if !platformSupportsGSO {
@@ -275,7 +275,7 @@ func TestSysConnSendGSO(t *testing.T) {
 	oobMsg := c.oobs[0]
 	require.NotEmpty(t, oobMsg)
 	require.Equal(t, cap(oob), cap(oobMsg)) // check that it appended to oob
-	expected := appendUDPSegmentSizeMsg([]byte{}, 3)
+	expected := AppendUDPSegmentSizeMsg([]byte{}, 3)
 	// Check that the first control message is the OOB control message.
 	require.Equal(t, expected, oobMsg[:len(expected)])
 }
