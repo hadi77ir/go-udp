@@ -65,6 +65,9 @@ type bufferedConn interface {
 }
 
 func wrapDialed(rawConn types.RawConn, dc *ConnConfig) (*supConn, error) {
+	if dc == nil {
+		dc = &ConnConfig{}
+	}
 	if bConn, ok := rawConn.(bufferedConn); ok {
 		if dc.ReadBufferSize > 0 {
 			_ = bConn.SetReadBuffer(dc.ReadBufferSize)
@@ -78,6 +81,9 @@ func wrapDialed(rawConn types.RawConn, dc *ConnConfig) (*supConn, error) {
 }
 
 func WrapConnectedConn(rawConn types.RawConn, dc *ConnConfig) (types.PacketConn, error) {
+	if dc == nil {
+		dc = &ConnConfig{}
+	}
 	if bConn, ok := rawConn.(bufferedConn); ok {
 		if dc.ReadBufferSize > 0 {
 			_ = bConn.SetReadBuffer(dc.ReadBufferSize)
@@ -92,11 +98,7 @@ func WrapConnectedConn(rawConn types.RawConn, dc *ConnConfig) (types.PacketConn,
 
 func WrapUnconnectedConn(rawConn types.RawConn, dc *ConnConfig) (types.SuperConn, types.GetSubConnFunc, error) {
 	if dc == nil {
-		dc = &ConnConfig{
-			ReadBufferSize:  128 * receiveMTU,
-			WriteBufferSize: 128 * sendMTU,
-			WriteInterval:   50 * time.Millisecond,
-		}
+		dc = &ConnConfig{}
 	}
 	super, err := wrapDialed(rawConn, dc)
 	if err != nil {

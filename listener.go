@@ -5,7 +5,6 @@ import (
 	"github.com/hadi77ir/go-udp/raw"
 	"github.com/hadi77ir/go-udp/types"
 	"net"
-	"time"
 )
 
 // ListenConfig stores options for listening to an address.
@@ -52,14 +51,7 @@ func Listen(network string, laddr *net.UDPAddr) (types.SuperConn, error) {
 
 func WrapListenConn(rawConn types.RawConn, lc *ListenConfig) (types.SuperConn, error) {
 	if lc == nil {
-		lc = &ListenConfig{
-			Backlog: defaultListenBacklog,
-			ConnConfig: ConnConfig{
-				ReadBufferSize:  128 * receiveMTU,
-				WriteBufferSize: 128 * sendMTU,
-				WriteInterval:   50 * time.Millisecond,
-			},
-		}
+		lc = &ListenConfig{}
 	}
 	return wrapConn(rawConn, true, lc.AcceptFilter, lc.Backlog)
 }
