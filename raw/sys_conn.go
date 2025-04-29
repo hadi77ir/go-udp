@@ -42,7 +42,6 @@ type connectedConn interface {
 	io.ReadWriteCloser
 }
 
-var _ connectedConn = &net.UDPConn{
 var _ connectedConn = &net.UDPConn{}
 
 // WrapConn wraps given connection into a RawConn, allowing for sending OOB data (ECN bits)
