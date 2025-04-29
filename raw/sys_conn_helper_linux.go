@@ -48,7 +48,7 @@ func forceSetSendBuffer(c syscall.RawConn, bytes int) error {
 	return serr
 }
 
-func parseIPv4PktInfo(body []byte) (ip net.IP, ok bool) {
+func ParseIPv4PktInfo(body []byte) (ip net.IP, ok bool) {
 
 	if len(body) != 12 {
 		return nil, false
@@ -56,9 +56,9 @@ func parseIPv4PktInfo(body []byte) (ip net.IP, ok bool) {
 	return net.IPv4(body[8], body[9], body[10], body[11]), true
 }
 
-// isGSOEnabled tests if the kernel supports GSO.
-// Sending with GSO might still fail later on, if the interface doesn't support it (see isGSOError).
-func isGSOEnabled(conn syscall.RawConn) bool {
+// IsGSOEnabled tests if the kernel supports GSO.
+// Sending with GSO might still fail later on, if the interface doesn't support it (see IsGSOError).
+func IsGSOEnabled(conn syscall.RawConn) bool {
 	if kernelVersionMajor < 5 {
 		return false
 	}
@@ -90,7 +90,7 @@ func appendUDPSegmentSizeMsg(b []byte, size uint16) []byte {
 	return b
 }
 
-func isGSOError(err error) bool {
+func IsGSOError(err error) bool {
 	var serr *os.SyscallError
 	if errors.As(err, &serr) {
 		// EIO is returned by udp_send_skb() if the device driver does not have tx checksums enabled,
@@ -113,8 +113,8 @@ func isPermissionError(err error) bool {
 	return false
 }
 
-func isECNEnabled() bool {
-	return kernelVersionMajor >= 5 && !isECNDisabledUsingEnv()
+func IsECNEnabled() bool {
+	return kernelVersionMajor >= 5 && !IsECNDisabledUsingEnv()
 }
 
 // kernelVersion returns major and minor kernel version numbers, parsed from

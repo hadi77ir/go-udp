@@ -36,9 +36,9 @@ func setDF(rawConn syscall.RawConn) (bool, error) {
 	return true, nil
 }
 
-func isSendMsgSizeErr(err error) bool {
+func IsSendMsgSizeErr(err error) bool {
 	// https://man7.org/linux/man-pages/man7/udp.7.html
 	return errors.Is(err, unix.EMSGSIZE)
 }
 
-func isRecvMsgSizeErr(error) bool { return false }
+func IsRecvMsgSizeErr(error) bool { return false }

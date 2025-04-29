@@ -18,7 +18,7 @@ const ecnIPv4DataLen = 1
 
 const batchSize = 8
 
-func parseIPv4PktInfo(body []byte) (ip netip.Addr, _ uint32, ok bool) {
+func ParseIPv4PktInfo(body []byte) (ip netip.Addr, _ uint32, ok bool) {
 	// struct in_pktinfo {
 	// 	struct in_addr ipi_addr;     /* Header Destination address */
 	// };
@@ -28,6 +28,6 @@ func parseIPv4PktInfo(body []byte) (ip netip.Addr, _ uint32, ok bool) {
 	return netip.AddrFrom4(*(*[4]byte)(body)), 0, true
 }
 
-func isGSOEnabled(syscall.RawConn) bool { return false }
+func IsGSOEnabled(syscall.RawConn) bool { return false }
 
-func isECNEnabled() bool { return !isECNDisabledUsingEnv() }
+func IsECNEnabled() bool { return !IsECNDisabledUsingEnv() }

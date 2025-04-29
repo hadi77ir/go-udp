@@ -13,7 +13,7 @@ func newConn(c OOBCapablePacketConn, supportsDF bool) (*BasicConn, error) {
 	return &BasicConn{PacketConn: c, supportsDF: supportsDF}, nil
 }
 
-func inspectReadBuffer(c syscall.RawConn) (int, error) {
+func InspectReadBuffer(c syscall.RawConn) (int, error) {
 	var size int
 	var serr error
 	if err := c.Control(func(fd uintptr) {
@@ -24,7 +24,7 @@ func inspectReadBuffer(c syscall.RawConn) (int, error) {
 	return size, serr
 }
 
-func inspectWriteBuffer(c syscall.RawConn) (int, error) {
+func InspectWriteBuffer(c syscall.RawConn) (int, error) {
 	var size int
 	var serr error
 	if err := c.Control(func(fd uintptr) {

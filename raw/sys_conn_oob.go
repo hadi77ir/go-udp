@@ -51,7 +51,7 @@ type sysBatchWriter interface {
 	WriteBatch(ms []ipv4.Message, flags int) (int, error)
 }
 
-func inspectReadBuffer(c syscall.RawConn) (int, error) {
+func InspectReadBuffer(c syscall.RawConn) (int, error) {
 	var size int
 	var serr error
 	if err := c.Control(func(fd uintptr) {
@@ -62,7 +62,7 @@ func inspectReadBuffer(c syscall.RawConn) (int, error) {
 	return size, serr
 }
 
-func inspectWriteBuffer(c syscall.RawConn) (int, error) {
+func InspectWriteBuffer(c syscall.RawConn) (int, error) {
 	var size int
 	var serr error
 	if err := c.Control(func(fd uintptr) {
@@ -73,7 +73,7 @@ func inspectWriteBuffer(c syscall.RawConn) (int, error) {
 	return size, serr
 }
 
-func isECNDisabledUsingEnv() bool {
+func IsECNDisabledUsingEnv() bool {
 	disabled, err := strconv.ParseBool(os.Getenv("QUIC_GO_DISABLE_ECN"))
 	return err == nil && disabled
 }
@@ -178,8 +178,8 @@ func newConn(c OOBCapablePacketConn, supportsDF bool, writeInterval time.Duratio
 		writer:               writer,
 		cap: types.NewConnCapabilities(
 			supportsDF,
-			isGSOEnabled(rawConn),
-			isECNEnabled()),
+			IsGSOEnabled(rawConn),
+			IsECNEnabled()),
 	}
 	return oobConn, nil
 }
