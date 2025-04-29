@@ -193,7 +193,7 @@ func (l *supConn) dispatchMsg(addr net.Addr, buf *bytebufferpool.ByteBuffer, oob
 func (l *supConn) getSubConn(rAddr net.Addr, buf []byte, filter bool) (c *Conn, isNew bool, err error) {
 	l.connLock.Lock()
 	defer l.connLock.Unlock()
-	conn, ok := l.conns[rAddr.String()]
+	conn, ok := l.conns[l.rAddrString(rAddr)]
 	if ok {
 		return conn, false, nil
 	}
@@ -210,12 +210,22 @@ func (l *supConn) getSubConn(rAddr net.Addr, buf []byte, filter bool) (c *Conn, 
 	if l.isListener {
 		select {
 		case l.acceptCh <- conn:
-			l.conns[rAddr.String()] = conn
+			l.conns[l.rAddrString(rAddr)] = conn
 		default:
 			return nil, false, types.ErrListenQueueExceeded
 		}
 	}
 	return conn, true, nil
+}
+
+func (l *supConn) rAddrString(addr net.Addr) string {
+	if addr == nil {
+		addr = l.pConn.RemoteAddr()
+		if addr == nil {
+			return "<nil>"
+		}
+	}
+	return addr.String()
 }
 
 func (l *supConn) newSubConn(rAddr net.Addr) *Conn {

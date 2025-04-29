@@ -137,6 +137,13 @@ func newConn(c OOBCapablePacketConn, supportsDF bool, writeInterval time.Duratio
 		}
 	}
 
+	// Check if this socket is a "connected" socket.
+	isConnected := false
+	if ra, ok := c.(remoteAddrSock); ok && ra.RemoteAddr() != nil {
+		// this is a connected socket. use nil remote address.
+		isConnected = true
+	}
+
 	// Allows callers to pass in a connection that already satisfies batchReader interface
 	// to make use of the optimisation. Otherwise, ipv4.NewPacketConn would unwrap the file descriptor
 	// via SyscallConn(), and read it that way, which might not be what the caller wants.
@@ -160,9 +167,9 @@ func newConn(c OOBCapablePacketConn, supportsDF bool, writeInterval time.Duratio
 	reader := newBatchReader(br, nil)
 	var writer oobWriter
 	if writeInterval > 0 {
-		writer = newBatchWriter(bw, writeInterval, nil)
+		writer = newBatchWriter(bw, isConnected, writeInterval, nil)
 	} else {
-		writer = &basicWriter{OOBCapablePacketConn: c}
+		writer = &basicWriter{OOBCapablePacketConn: c, isConnected: isConnected}
 	}
 
 	oobConn := &oobConn{
@@ -240,6 +247,13 @@ func (c *oobConn) ReadPacket(b []byte, oob []byte) (bytesRead int, oobRead int, 
 		oobData = remainder
 	}
 	return
+}
+
+func (c *oobConn) RemoteAddr() net.Addr {
+	if cc, ok := c.OOBCapablePacketConn.(remoteAddrSock); ok {
+		return cc.RemoteAddr()
+	}
+	return nil
 }
 
 // WritePacket writes a new packet.

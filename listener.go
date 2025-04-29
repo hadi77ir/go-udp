@@ -57,7 +57,7 @@ func WrapListenConn(rawConn types.RawConn, lc *ListenConfig) (types.SuperConn, e
 			ConnConfig: ConnConfig{
 				ReadBufferSize:  128 * receiveMTU,
 				WriteBufferSize: 128 * sendMTU,
-				WriteInterval:   50 * time.Microsecond,
+				WriteInterval:   50 * time.Millisecond,
 			},
 		}
 	}

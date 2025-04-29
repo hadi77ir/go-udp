@@ -52,6 +52,7 @@ type RawConn interface {
 	// It is invalid to set gsoSize if capabilities.GSO is not set.
 	WritePacket(b []byte, oob []byte, gsoSize uint16, ecn ECN, addr net.Addr) (bytesWritten int, oobWritten int, err error)
 	LocalAddr() net.Addr
+	RemoteAddr() net.Addr
 	SetReadDeadline(time.Time) error
 	io.Closer
 

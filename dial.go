@@ -2,18 +2,11 @@ package udp
 
 import (
 	"net"
-	"sync"
 	"time"
 
 	"github.com/hadi77ir/go-udp/raw"
 	"github.com/hadi77ir/go-udp/types"
 )
-
-// dialed connections have no difference with listeners
-
-// dialSuperConn is a map of laddr to listener
-var dialSuperConns map[string]*supConn = make(map[string]*supConn)
-var dialSuperConnsMutex *sync.Mutex = &sync.Mutex{}
 
 // ConnConfig stores options for dialing an address or received connections.
 type ConnConfig struct {
@@ -35,7 +28,7 @@ type ConnConfig struct {
 	WriteInterval time.Duration
 }
 
-func (dc *ConnConfig) Dial(network string, laddr *net.UDPAddr, raddr *net.UDPAddr) (*Conn, error) {
+func (dc *ConnConfig) Dial(network string, laddr *net.UDPAddr, raddr *net.UDPAddr) (types.PacketConn, error) {
 	// check inputs
 	switch network {
 	case "udp", "udp4", "udp6":
@@ -45,70 +38,25 @@ func (dc *ConnConfig) Dial(network string, laddr *net.UDPAddr, raddr *net.UDPAdd
 	if raddr == nil {
 		return nil, types.ErrMissingAddr
 	}
-
-	super, err := getSuperConn(network, laddr, raddr, dc)
-	if err != nil {
-		return nil, err
-	}
-
-	// - get new conn from listener for raddr
-	sub, isNew, err := super.getSubConn(raddr, nil, false)
-	if err != nil {
-		return nil, err
-	}
-	if sub != nil {
-		// we don't want to mess with already assigned connections.
-		if !isNew {
-			return nil, types.ErrAlreadyInUse
-		}
-		return sub, nil
-	}
-	return nil, types.ErrUnexpectedNil
-}
-
-func (dc *ConnConfig) DialSuper(network string, laddr *net.UDPAddr, raddr *net.UDPAddr) (types.SuperConn, error) {
-	return getSuperConn(network, laddr, raddr, dc)
-}
-func Dial(network string, laddr *net.UDPAddr, raddr *net.UDPAddr) (*Conn, error) {
-	dc := &ConnConfig{}
-	return dc.Dial(network, laddr, raddr)
-}
-
-func DialSuper(network string, laddr *net.UDPAddr, raddr *net.UDPAddr) (types.SuperConn, error) {
-	dc := &ConnConfig{}
-	return dc.DialSuper(network, laddr, raddr)
-}
-
-func getSuperConn(network string, laddr *net.UDPAddr, raddr *net.UDPAddr, dc *ConnConfig) (*supConn, error) {
-	dialSuperConnsMutex.Lock()
-	defer dialSuperConnsMutex.Unlock()
-	// - get a superConn
-	// -- check if dialSuperConn have an entry for laddr
-	super, ok := dialSuperConns[laddr.String()]
-	// -- if not, then create a new listener
-	if !ok {
-		var err error
-		super, err = superDialNew(network, laddr, raddr, dc)
-		if err != nil {
-			return nil, err
-		}
-		dialSuperConns[laddr.String()] = super
-	}
-	return super, nil
-}
-
-func superDialNew(network string, laddr *net.UDPAddr, raddr *net.UDPAddr, dc *ConnConfig) (*supConn, error) {
 	conn, err := net.DialUDP(network, laddr, raddr)
 	if err != nil {
 		return nil, err
 	}
-
+	if dc.ReadBufferSize > 0 {
+		_ = conn.SetReadBuffer(dc.ReadBufferSize)
+	}
+	if dc.WriteBufferSize > 0 {
+		_ = conn.SetWriteBuffer(dc.WriteBufferSize)
+	}
 	rawConn, err := raw.WrapConn(conn, dc.WriteInterval)
-	//rawConn := &udp.BasicConn{PacketConn: conn}
 	if err != nil {
 		return nil, err
 	}
-	return wrapDialed(rawConn, dc)
+	return WrapConnectedConn(rawConn, dc)
+}
+
+func Dial(network string, laddr *net.UDPAddr, raddr *net.UDPAddr) (types.PacketConn, error) {
+	return (&ConnConfig{}).Dial(network, laddr, raddr)
 }
 
 type bufferedConn interface {
@@ -129,12 +77,25 @@ func wrapDialed(rawConn types.RawConn, dc *ConnConfig) (*supConn, error) {
 	return wrapConn(rawConn, false, nil, 1)
 }
 
-func WrapDialedConn(rawConn types.RawConn, dc *ConnConfig) (types.SuperConn, types.GetSubConnFunc, error) {
+func WrapConnectedConn(rawConn types.RawConn, dc *ConnConfig) (types.PacketConn, error) {
+	if bConn, ok := rawConn.(bufferedConn); ok {
+		if dc.ReadBufferSize > 0 {
+			_ = bConn.SetReadBuffer(dc.ReadBufferSize)
+		}
+		if dc.WriteBufferSize > 0 {
+			_ = bConn.SetWriteBuffer(dc.WriteBufferSize)
+		}
+	}
+
+	return &ConnectedConn{base: rawConn}, nil
+}
+
+func WrapUnconnectedConn(rawConn types.RawConn, dc *ConnConfig) (types.SuperConn, types.GetSubConnFunc, error) {
 	if dc == nil {
 		dc = &ConnConfig{
 			ReadBufferSize:  128 * receiveMTU,
 			WriteBufferSize: 128 * sendMTU,
-			WriteInterval:   50 * time.Microsecond,
+			WriteInterval:   50 * time.Millisecond,
 		}
 	}
 	super, err := wrapDialed(rawConn, dc)

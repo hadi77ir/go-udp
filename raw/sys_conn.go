@@ -2,6 +2,7 @@ package raw
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"strconv"
@@ -30,6 +31,19 @@ type OOBCapablePacketConn interface {
 }
 
 var _ OOBCapablePacketConn = &net.UDPConn{}
+
+type remoteAddrSock interface {
+	RemoteAddr() net.Addr
+}
+
+var _ remoteAddrSock = &net.UDPConn{}
+
+type connectedConn interface {
+	io.ReadWriteCloser
+}
+
+var _ connectedConn = &net.UDPConn{
+var _ connectedConn = &net.UDPConn{}
 
 // WrapConn wraps given connection into a RawConn, allowing for sending OOB data (ECN bits)
 // To disable batch writing that involves buffering and interval-based flushing, set writeInterval to zero.

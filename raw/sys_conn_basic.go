@@ -16,13 +16,25 @@ import (
 // * when the OS doesn't support OOB.
 type BasicConn struct {
 	net.PacketConn
-	supportsDF bool
+	isConnected bool
+	supportsDF  bool
 }
 
 var _ types.RawConn = &BasicConn{}
 
+func (c *BasicConn) RemoteAddr() net.Addr {
+	if cc, ok := c.PacketConn.(remoteAddrSock); ok {
+		return cc.RemoteAddr()
+	}
+	return nil
+}
+
 func (c *BasicConn) ReadPacket(b []byte, oob []byte) (bytesRead int, oobRead int, ecn types.ECN, remoteAddr net.Addr, err error) {
-	bytesRead, remoteAddr, err = c.PacketConn.ReadFrom(b)
+	if cc, ok := c.PacketConn.(connectedConn); c.isConnected && ok {
+		bytesRead, err = cc.Read(b)
+	} else {
+		bytesRead, remoteAddr, err = c.PacketConn.ReadFrom(b)
+	}
 	if err != nil {
 		return 0, 0, types.ECNUnsupported, nil, err
 	}
@@ -41,6 +53,15 @@ func (c *BasicConn) WritePacket(b []byte, oob []byte, gsoSize uint16, ecn types.
 		log.Log(logging.PanicLevel, "cannot use ECN with a basicConn")
 		// failsafe
 		return 0, 0, errors.New("ECN not supported")
+	}
+
+	if c.isConnected {
+		if cc, ok := c.PacketConn.(connectedConn); ok {
+			n, err = cc.Write(b)
+			return
+		} else {
+			addr = nil
+		}
 	}
 	n, err = c.PacketConn.WriteTo(b, addr)
 	return
