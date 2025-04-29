@@ -333,11 +333,11 @@ func OOBForAddr(addrInfo netip.Addr) []byte {
 
 func appendIPv4ECNMsg(b []byte, val types.ECN) []byte {
 	startLen := len(b)
-	b = append(b, make([]byte, unix.CmsgSpace(ecnIPv4DataLen))...)
+	b = append(b, make([]byte, unix.CmsgSpace(ECNIPv4DataLen))...)
 	h := (*unix.Cmsghdr)(unsafe.Pointer(&b[startLen]))
 	h.Level = syscall.IPPROTO_IP
 	h.Type = unix.IP_TOS
-	h.SetLen(unix.CmsgLen(ecnIPv4DataLen))
+	h.SetLen(unix.CmsgLen(ECNIPv4DataLen))
 
 	// UnixRights uses the private `data` method, but I *think* this achieves the same goal.
 	offset := startLen + unix.CmsgSpace(0)

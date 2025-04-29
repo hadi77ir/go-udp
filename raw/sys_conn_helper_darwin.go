@@ -15,7 +15,7 @@ const (
 	ipv4PKTINFO  = unix.IP_RECVPKTINFO
 )
 
-const ecnIPv4DataLen = 4
+const ECNIPv4DataLen = 4
 
 // ReadBatch only returns a single packet on OSX,
 // see https://godoc.org/golang.org/x/net/ipv4#PacketConn.ReadBatch.
