@@ -7,42 +7,55 @@ import (
 	"time"
 )
 
-type ConnectedConn struct {
+type SingleAddrConn struct {
 	base types.RawConn
+	addr net.Addr
 }
 
-func (c *ConnectedConn) Close() error {
+func (c *SingleAddrConn) Close() error {
 	return c.base.Close()
 }
 
-func (c *ConnectedConn) Read(p []byte, oob []byte) (dataN int, oobN int, ecn types.ECN, err error) {
-	dataN, oobN, ecn, _, err = c.base.ReadPacket(p, oob)
+func (c *SingleAddrConn) Read(p []byte, oob []byte) (dataN int, oobN int, ecn types.ECN, err error) {
+	var addr net.Addr
+	dataN, oobN, ecn, addr, err = c.base.ReadPacket(p, oob)
+	if addr != nil && c.addr != nil {
+		// check if addr is the same or the packet should be ignored
+		if addr.String() != c.addr.String() {
+			// ignore this packet
+			return 0, 0, 0, nil
+		}
+	}
 	return
 }
 
-func (c *ConnectedConn) Write(p []byte, oob []byte, gsoSize int, ecn types.ECN) (dataN int, oobN int, err error) {
-	dataN, oobN, err = c.base.WritePacket(p, oob, uint16(gsoSize), ecn, nil)
+func (c *SingleAddrConn) Write(p []byte, oob []byte, gsoSize int, ecn types.ECN) (dataN int, oobN int, err error) {
+	dataN, oobN, err = c.base.WritePacket(p, oob, uint16(gsoSize), ecn, c.addr)
 	return
 }
 
-func (c *ConnectedConn) LocalAddr() net.Addr {
+func (c *SingleAddrConn) LocalAddr() net.Addr {
 	return c.base.LocalAddr()
 }
 
-func (c *ConnectedConn) RemoteAddr() net.Addr {
-	return c.base.RemoteAddr()
+func (c *SingleAddrConn) RemoteAddr() net.Addr {
+	addr := c.base.RemoteAddr()
+	if addr != nil {
+		return addr
+	}
+	return c.addr
 }
 
-func (c *ConnectedConn) SetDeadline(t time.Time) error {
+func (c *SingleAddrConn) SetDeadline(t time.Time) error {
 	return c.SetReadDeadline(t)
 }
 
-func (c *ConnectedConn) SetReadDeadline(t time.Time) error {
+func (c *SingleAddrConn) SetReadDeadline(t time.Time) error {
 	return c.base.SetReadDeadline(t)
 }
 
-func (c *ConnectedConn) SetWriteDeadline(t time.Time) error {
+func (c *SingleAddrConn) SetWriteDeadline(t time.Time) error {
 	return errors.ErrUnsupported
 }
 
-var _ types.PacketConn = &ConnectedConn{}
+var _ types.PacketConn = &SingleAddrConn{}

@@ -93,19 +93,21 @@ func WrapConnectedConn(rawConn types.RawConn, dc *ConnConfig) (types.PacketConn,
 		}
 	}
 
-	return &ConnectedConn{base: rawConn}, nil
+	return &SingleAddrConn{base: rawConn}, nil
 }
 
-func WrapUnconnectedConn(rawConn types.RawConn, dc *ConnConfig) (types.SuperConn, types.GetSubConnFunc, error) {
+func WrapUnconnectedConn(rawConn types.RawConn, rAddr net.Addr, dc *ConnConfig) (types.PacketConn, error) {
 	if dc == nil {
 		dc = &ConnConfig{}
 	}
-	super, err := wrapDialed(rawConn, dc)
-	if err != nil {
-		return nil, nil, err
+
+	if bConn, ok := rawConn.(bufferedConn); ok {
+		if dc.ReadBufferSize > 0 {
+			_ = bConn.SetReadBuffer(dc.ReadBufferSize)
+		}
+		if dc.WriteBufferSize > 0 {
+			_ = bConn.SetWriteBuffer(dc.WriteBufferSize)
+		}
 	}
-	return super, func(raddr net.Addr) (c types.PacketConn, err error) {
-		c, _, err = super.getSubConn(raddr, nil, false)
-		return
-	}, nil
+	return &SingleAddrConn{base: rawConn, addr: rAddr}, nil
 }
