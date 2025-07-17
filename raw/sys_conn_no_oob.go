@@ -7,7 +7,13 @@ import (
 )
 
 func newConn(c net.PacketConn, supportsDF bool) (*BasicConn, error) {
-	return &BasicConn{PacketConn: c, supportsDF: supportsDF}, nil
+	// Check if this socket is a "connected" socket.
+	isConnected := false
+	if ra, ok := c.(remoteAddrSock); ok && ra.RemoteAddr() != nil {
+		// this is a connected socket. use nil remote address.
+		isConnected = true
+	}
+	return &BasicConn{PacketConn: c, supportsDF: supportsDF, isConnected: isConnected}, nil
 }
 
 func InspectReadBuffer(any) (int, error)  { return 0, nil }

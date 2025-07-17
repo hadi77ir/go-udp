@@ -90,7 +90,13 @@ func WrapConn(pc net.PacketConn, writeInterval time.Duration) (types.RawConn, er
 	c, ok := pc.(OOBCapablePacketConn)
 	if !ok {
 		log.Log(logging.InfoLevel, "PacketConn is not a net.UDPConn or OOB-capable connection. Disabling optimizations possible on UDP connections.")
-		return &BasicConn{PacketConn: pc, supportsDF: supportsDF}, nil
+		// Check if this socket is a "connected" socket.
+		isConnected := false
+		if ra, ok := c.(remoteAddrSock); ok && ra.RemoteAddr() != nil {
+			// this is a connected socket. use nil remote address.
+			isConnected = true
+		}
+		return &BasicConn{PacketConn: pc, supportsDF: supportsDF, isConnected: isConnected}, nil
 	}
 	return newConn(c, supportsDF, writeInterval)
 }
