@@ -5,11 +5,13 @@ package raw
 import (
 	"net/netip"
 	"syscall"
+	"time"
 
+	"github.com/hadi77ir/go-udp/types"
 	"golang.org/x/sys/windows"
 )
 
-func newConn(c OOBCapablePacketConn, supportsDF bool) (*BasicConn, error) {
+func newConn(c OOBCapablePacketConn, supportsDF bool, writeInterval time.Duration) (types.RawConn, error) {
 	// Check if this socket is a "connected" socket.
 	isConnected := false
 	if ra, ok := c.(remoteAddrSock); ok && ra.RemoteAddr() != nil {

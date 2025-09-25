@@ -21,7 +21,7 @@ func Log(level logging.Level, args ...interface{}) {
 	}
 	if level == logging.PanicLevel {
 		if defaultLogger == nil {
-			fmt.Println(args)
+			fmt.Println(args...)
 		}
 		os.Exit(1)
 		panic("panic")

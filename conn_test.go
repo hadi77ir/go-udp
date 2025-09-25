@@ -466,6 +466,14 @@ func TestBatchIO(t *testing.T) {
 				break
 			}
 			assert.NoError(t, lerr)
+			gsoSize := 0
+			if conn.Capabilities().GSO() {
+				gsoSize = 128
+			}
+			ecn := types.ECNUnsupported
+			if conn.Capabilities().ECN() {
+				ecn = types.ECNNon
+			}
 			serverConnWg.Add(1)
 			go func() {
 				defer func() {
@@ -478,7 +486,7 @@ func TestBatchIO(t *testing.T) {
 					if rerr != nil {
 						assert.ErrorContains(t, rerr, context.DeadlineExceeded.Error())
 					} else {
-						_, _, rerr = conn.Write(buf[:n], []byte{}, 128, types.ECNNon)
+						_, _, rerr = conn.Write(buf[:n], []byte{}, gsoSize, ecn)
 						assert.NoError(t, rerr)
 					}
 				}
